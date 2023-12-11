@@ -1,0 +1,183 @@
+---
+title: "Data Prep"
+---
+
+# Exploring data
+
+```{r}
+library(tidyverse)
+library(here)
+library(tsibble)
+library(feasts)
+library(forecast)
+library(zoo) # na.approx
+library(marmap)
+```
+
+```{r}
+chlorophyll <- read_csv(here("data/troutlake_chlorophyll.csv"))
+lake_chem <- read_csv(here("data/chemical_limnology.csv"))
+meteorlogical <- read_csv(here("data/meteorlogical.csv"))
+lake_men_chem <- read_csv(here("data/lakemendota_chem.csv"))
+lake_men_temp <- read_csv(here("data/lakemendota_temp.csv"))
+
+# color <- read_csv("data/troutlake_color.csv")
+# phytoplankton <- read_csv("data/troutlake_phytoplankton.csv")
+# groundwater <- read_csv("data/groundwater_chem.csv")
+
+```
+
+```{r}
+# exploration chlorophyll
+
+chla_exp <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year = year(sampledate)) %>% 
+  group_by(lakeid, year, depth) %>% 
+  summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>% 
+  filter(lakeid == "AL",
+         year > 2000)
+
+chla_ts <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year = year(sampledate)) %>%
+  group_by(lakeid, year) %>% 
+  summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = chla_mean, color = lakeid)) +
+  geom_line()
+chla_ts
+
+```
+
+```{r}
+chla_plot <-ggplot(chla_exp, aes(x = year, y = depth, z = chla_mean)) +
+  geom_tile(aes(fill = chla_mean), position = "identity") +
+  labs(title = "Chlorophyll depth profile over time (all sites)", 
+       x = "year", y = "depth",
+       fill = "chla") +
+  theme_minimal() +
+  scale_y_reverse() +
+  facet_wrap(~lakeid)
+chla_plot
+
+# one dimensional kriging. inverse distance interpolation
+```
+
+```{r}
+# chorophyll cleaning
+chlorophyll_clean <- read_csv("data/troutlake_chlorophyll.csv") %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>%
+  mutate(month = month(sampledate),
+         year = year(sampledate))  %>% 
+  group_by(lakeid, year, month) %>% 
+  summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>% 
+  mutate(ID = paste(lakeid, year, month, sep = "-")) %>% 
+  ungroup() %>% 
+  select(c("ID", "chla_mean"))
+
+# lake_chemistry cleaning
+lake_chem_clean <- read_csv("data/chemical_limnology.csv") %>% 
+  group_by(lakeid, sampledate) %>% 
+  filter(lakeid %in% c("AL", "BM", "CB", "CR", "SP", "TB", "TR")) %>% 
+  select(c("lakeid", "sampledate", "depth", "ph", "dic",
+           "doc", "no3no2", "nh4")) %>% 
+  mutate(month = month(sampledate),
+         year = year(sampledate))  %>% 
+  group_by(lakeid, year, month) %>% 
+  summarize(no3no2_mean = mean(no3no2, na.rm = TRUE),
+            nh4_mean = mean(nh4, na.rm = TRUE),
+            doc_mean = mean(doc, na.rm = TRUE),
+            ph_mean = mean(ph, na.rm = TRUE)) %>% 
+  mutate(ID = paste(lakeid, year, month, sep = "-")) %>% 
+  ungroup() %>% 
+  select(ID, no3no2_mean, nh4_mean, doc_mean, ph_mean)
+
+# meteorlogical cleaning
+meteorlogical_clean <- read_csv("data/meteorlogical.csv")%>% 
+  select(c("sampledate", "min_air_temp", "max_air_temp", "precip"))
+```
+
+study sites: AL, BM, CB, CR, SP, TB, TR
+
+Does shoreline development contribute to increased algal blooms?
+
+```{r}
+# joining chorophyll, lake_chem, and meteorlogical data
+join_chla_lakechem <- left_join(chlorophyll_clean, lake_chem_clean, 
+                                by = "ID") %>% 
+  separate(ID, into = c("lakeid", "year", "month"), sep = "-") %>%
+  mutate(month = str_pad(month, width = 2, pad = "0")) %>% 
+  mutate(year_month = paste(year, month, sep = "-")) %>% 
+  mutate(year_month = ymd(year_month))
+
+```
+
+```{r}
+chlorophyll_pre <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>%
+  group_by(lakeid, sampledate) %>% 
+  summarize(chla = mean(chlor, na.rm = TRUE)) %>% 
+  mutate(month = month(sampledate),
+         year = year(sampledate)) %>% 
+  filter(year >= 2006)
+
+lake_men_chem_pre <- lake_men_chem %>% 
+  select(c(sampledate, avg_chlor_rfu)) %>% 
+  mutate(month = month(sampledate),
+         year = year(sampledate),
+         lakeid = "LM")
+```
+
+```{r}
+summary(lm(chla ~ lakeid, data = chlorophyll_pre))
+```
+
+```{r}
+ts <- lake_men_chem %>% 
+  select(c(sampledate, avg_chlor_rfu)) %>% 
+  mutate(year_month = yearmonth(sampledate)) %>% 
+  group_by(year_month) %>% 
+  summarize(avg_chlor = mean(avg_chlor_rfu, na.rm = TRUE)) %>% 
+  tsibble(index = year_month) %>% 
+  tsibble::fill_gaps() %>% 
+  mutate(avg_chlor=if_else(is.nan(avg_chlor), NA, avg_chlor) %>% 
+        na.approx()) %>% 
+  tsibble(index = year_month) 
+
+decomp = ts %>%  model(classical_decomposition(avg_chlor, type = "additive"))
+autoplot(components(decomp))
+```
+
+```{r}
+decomp = ts %>%  model(STL(avg_chlor))
+autoplot(components(decomp))
+```
+
+```{r}
+# forecast <- lake_chem_clean %>% 
+#   HoltWinters()
+```
+
+# Lagos
+
+```{r}
+lagos <- read_csv(here("data/lagos-us.csv")) 
+
+lagos_decomp <- lagos %>% 
+  filter(parameter_name == "chla_ugl") %>% 
+  select(c(sample_date, parameter_value)) %>% 
+  mutate(year = year(sample_date)) %>% 
+  group_by(year) %>% 
+  summarize(avg_chlor = mean(parameter_value, na.rm = TRUE)) %>%  
+  mutate(avg_chlor=if_else(is.nan(avg_chlor), NA, avg_chlor)) %>% 
+  filter(year < 2021) %>% 
+  tsibble(index = year) 
+
+decomp = lagos_decomp %>%  model(STL(avg_chlor))
+autoplot(components(decomp))
+```
+
+```{r}
+ggplot(data = lagos_decomp, aes(x = year, y = avg_chlor)) +
+  geom_point()
+```

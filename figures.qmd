@@ -1,0 +1,191 @@
+---
+title: "presentation figures"
+---
+
+```{r warning=FALSE}
+library(tidyverse)
+library(here)
+library(tsibble)
+library(feasts)
+library(forecast)
+library(zoo) # na.approx
+library(marmap)
+library(patchwork)
+```
+
+```{r}
+chlorophyll <- read_csv(here("data/troutlake_chlorophyll.csv"))
+lake_chem <- read_csv(here("data/chemical_limnology.csv"))
+meteorlogical <- read_csv(here("data/meteorlogical.csv"))
+```
+
+```{r}
+chla_exp <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year = year(sampledate)) %>% 
+  group_by(lakeid, year) %>% 
+  summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>% 
+  mutate(development = if_else((lakeid %in% c("CB", "TB", "CR", "AL")), 
+                               paste("low"), paste("high"))) %>% 
+  mutate(depth = case_when(
+    lakeid %in% c("CB", "AL") ~ "shallow",
+    lakeid %in% c("TB", "BM") ~ "medium",
+    lakeid %in% c("CR", "SP", "TR") ~ "deep"
+  ))
+
+chla_plot <- ggplot(data = chla_exp, aes(x = year, y = chla_mean, color = depth)) +
+  geom_point() +
+  geom_smooth(method = "glm")
+chla_plot
+```
+
+```{r}
+chla_exp <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year = year(sampledate)) %>% 
+  group_by(lakeid, year) %>% 
+  summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>% 
+  mutate(log_chla_mean = log(chla_mean)) %>% 
+  mutate(development = if_else((lakeid %in% c("CB", "TB", "CR", "AL")), 
+                               paste("low"), paste("high"))) %>% 
+  mutate(depth = case_when(
+    lakeid == "CB" ~ 2.5,
+    lakeid == "TB" ~ 7.9,
+    lakeid == "CR" ~ 20.4,
+    lakeid == "BM" ~ 21.3,
+    lakeid == "SP" ~ 20,
+    lakeid == "AL" ~ 8,
+    lakeid == "TR" ~ 35.7
+  )) %>% 
+   mutate(depth_type = case_when(
+    lakeid %in% c("CB", "AL") ~ "shallow",
+    lakeid %in% c("TB", "BM") ~ "medium",
+    lakeid %in% c("CR", "SP", "TR") ~ "deep"
+  ))
+
+chla_depth_mod <- summary(lm(log_chla_mean ~ depth, data = chla_exp))
+chla_depth_mod
+
+
+ggplot(data = chla_exp, aes(x = year, y = log_chla_mean, color = lakeid)) +
+  geom_line()
+```
+
+```{r}
+shallow_hist <- chla_exp %>%
+  filter(depth %in% c("shallow", "medium")) %>% 
+  mutate(chla_mean = log(chla_mean)) %>% 
+  ggplot(aes(x = chla_mean)) +
+  labs(title = "shallow") +
+  geom_histogram()
+
+deep_hist <- chla_exp %>%
+  filter(depth == "deep") %>% 
+  mutate(chla_mean = log(chla_mean)) %>% 
+  ggplot(aes(x = chla_mean)) +
+  labs(title = "deep") +
+  geom_histogram()
+  
+hist <- chla_exp %>% 
+  mutate(chla_mean = log(chla_mean)) %>% 
+  ggplot(aes(x = chla_mean, fill = lakeid)) +
+  geom_histogram()
+hist
+
+```
+
+```{r}
+depth_mod <-summary(glm(chla_mean ~ depth, data = chla_exp))
+
+depth_mod
+```
+
+```{r}
+shallow_decomp <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year_month = yearmonth(sampledate)) %>% 
+  mutate(depth_type = case_when(
+    lakeid %in% c("CB", "AL") ~ "shallow",
+    lakeid %in% c("TB", "BM") ~ "medium",
+    lakeid %in% c("CR", "SP", "TR") ~ "deep"
+  )) %>% 
+  filter(depth_type == "shallow") %>% 
+  group_by(year_month) %>% 
+  summarize(avg_chlor = mean(chlor, na.rm = TRUE)) %>% 
+  tsibble(index = year_month) %>% 
+  tsibble::fill_gaps() %>% 
+  mutate(avg_chlor=if_else(is.nan(avg_chlor), NA, avg_chlor) %>% 
+        na.approx()) %>% 
+  model(classical_decomposition(avg_chlor, type = "additive"))
+
+autoplot(components(shallow_decomp)) +
+  labs(title = "shallow classical decomp")
+```
+
+```{r}
+deep_decomp <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year_month = yearmonth(sampledate)) %>% 
+  mutate(depth_type = case_when(
+    lakeid %in% c("CB", "AL") ~ "shallow",
+    lakeid %in% c("TB", "BM") ~ "medium",
+    lakeid %in% c("CR", "SP", "TR") ~ "deep"
+  )) %>% 
+  filter(depth_type == "deep") %>% 
+  group_by(year_month) %>% 
+  summarize(avg_chlor = mean(chlor, na.rm = TRUE)) %>% 
+  tsibble(index = year_month) %>% 
+  tsibble::fill_gaps() %>% 
+  mutate(avg_chlor=if_else(is.nan(avg_chlor), NA, avg_chlor) %>% 
+        na.approx()) %>% 
+  model(classical_decomposition(avg_chlor, type = "additive"))
+
+autoplot(components(deep_decomp)) +
+  labs(title = "deep classical decomp")
+```
+
+```{r}
+all_decomp <- chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year_month = yearmonth(sampledate)) %>% 
+  group_by(year_month) %>% 
+  summarize(avg_chlor = mean(chlor, na.rm = TRUE)) %>% 
+  tsibble(index = year_month) %>% 
+  tsibble::fill_gaps() %>% 
+  mutate(avg_chlor=if_else(is.nan(avg_chlor), NA, avg_chlor) %>% 
+        na.approx()) %>% 
+  model(classical_decomposition(avg_chlor, type = "additive"))
+
+autoplot(components(all_decomp)) +
+  labs(title = "all classical decomp")
+```
+
+```{r}
+# forecasting
+
+recent = chlorophyll %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor")) %>% 
+  mutate(year_month = yearmonth(sampledate)) %>% 
+  mutate(depth_type = case_when(
+    lakeid %in% c("CB", "AL") ~ "shallow",
+    lakeid %in% c("TB", "BM") ~ "medium",
+    lakeid %in% c("CR", "SP", "TR") ~ "deep"
+  )) %>% 
+  filter(depth_type == "shallow") %>% 
+  group_by(year_month) %>% 
+  summarize(avg_chlor = mean(chlor, na.rm = TRUE)) %>% 
+  tsibble(index = year_month) %>% 
+  tsibble::fill_gaps() %>% 
+  mutate(avg_chlor=if_else(is.nan(avg_chlor), NA, avg_chlor) %>% 
+        na.approx()) %>% 
+  filter(year(year_month) > 2019-20)
+  
+holt_winters_fit <- HoltWinters(recent) 
+
+plot(holt_winters_fit,  ylab = "avg chlorophyll", xlim = c(2010, 2019)) +
+lines(holt_winters_fit$fitted[,1], lty = 2, col = "blue")
+
+
+chla_forecast = forecast(holt_winters_fit, h = 48, level = c(95))
+plot(chla_forecast, xlim = c(2010, 2024))
+```
