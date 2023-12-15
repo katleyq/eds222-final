@@ -11,6 +11,8 @@ library(forecast)
 library(zoo) # na.approx
 library(marmap)
 library(patchwork)
+library(broom)
+library(gt)
 ```
 
 ```{r}
@@ -45,7 +47,7 @@ chla_exp <- chlorophyll %>%
   mutate(year = year(sampledate)) %>% 
   group_by(lakeid, year) %>% 
   summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>% 
-  mutate(log_chla_mean = log(chla_mean)) %>% 
+  # mutate(log_chla_mean = log(chla_mean)) %>% 
   mutate(development = if_else((lakeid %in% c("CB", "TB", "CR", "AL")), 
                                paste("low"), paste("high"))) %>% 
   mutate(depth = case_when(
@@ -67,7 +69,7 @@ chla_depth_mod <- summary(lm(log_chla_mean ~ depth, data = chla_exp))
 chla_depth_mod
 
 
-ggplot(data = chla_exp, aes(x = year, y = log_chla_mean, color = lakeid)) +
+ggplot(data = chla_exp, aes(x = year, y = chla_mean, color = lakeid)) +
   geom_line()
 ```
 
@@ -88,16 +90,10 @@ deep_hist <- chla_exp %>%
   
 hist <- chla_exp %>% 
   mutate(chla_mean = log(chla_mean)) %>% 
-  ggplot(aes(x = chla_mean, fill = lakeid)) +
+  ggplot(aes(x = chla_mean)) +
   geom_histogram()
 hist
 
-```
-
-```{r}
-depth_mod <-summary(glm(chla_mean ~ depth, data = chla_exp))
-
-depth_mod
 ```
 
 ```{r}
@@ -118,8 +114,9 @@ shallow_decomp <- chlorophyll %>%
         na.approx()) %>% 
   model(classical_decomposition(avg_chlor, type = "additive"))
 
-autoplot(components(shallow_decomp)) +
+shallow_decomp <-autoplot(components(shallow_decomp)) +
   labs(title = "shallow classical decomp")
+shallow_decomp
 ```
 
 ```{r}
@@ -189,3 +186,140 @@ lines(holt_winters_fit$fitted[,1], lty = 2, col = "blue")
 chla_forecast = forecast(holt_winters_fit, h = 48, level = c(95))
 plot(chla_forecast, xlim = c(2010, 2024))
 ```
+
+```{r}
+# lake_chemistry cleaning
+lake_chem_clean <- read_csv("data/chemical_limnology.csv") %>% 
+  group_by(lakeid, sampledate) %>% 
+  filter(lakeid %in% c("AL", "BM", "CB", "CR", "SP", "TB", "TR")) %>% 
+  select(c("lakeid", "sampledate", "depth", "ph", "dic",
+           "doc", "no3no2", "nh4"))
+  # mutate(month = month(sampledate),
+  #        year = year(sampledate))  %>%
+  # group_by(lakeid, year, month) %>%
+  # summarize(no3no2_mean = mean(no3no2, na.rm = TRUE),
+  #           nh4_mean = mean(nh4, na.rm = TRUE),
+  #           doc_mean = mean(doc, na.rm = TRUE),
+  #           ph_mean = mean(ph, na.rm = TRUE)) %>%
+  # mutate(ID = paste(lakeid, year, month, sep = "-")) %>%
+  # ungroup() %>%
+  # select(ID, no3no2_mean, nh4_mean, doc_mean, ph_mean)
+
+# chorophyll cleaning
+chlorophyll_clean <- read_csv("data/troutlake_chlorophyll.csv") %>% 
+  select(!c("year4", "daynum", "rep", "sta", "phaeo", "flagphaeo", "flagchlor"))
+  # mutate(month = month(sampledate),
+  #        year = year(sampledate))  %>%
+  # group_by(lakeid, year, month) %>%
+  # summarize(chla_mean = mean(chlor, na.rm = TRUE)) %>%
+  # mutate(ID = paste(lakeid, year, month, sep = "-")) %>%
+  # ungroup() %>%
+  # select(c("ID", "chla_mean"))
+
+# joining chorophyll, lake_chem, and meteorlogical data
+join_chla_lakechem <- left_join(chlorophyll_clean, lake_chem_clean, 
+                                by = "ID") %>% 
+  separate(ID, into = c("lakeid", "year", "month"), sep = "-")
+
+
+join_chla_lake_chem2 <- full_join(chlorophyll_clean, lake_chem_clean,
+                                  by = c("lakeid", "sampledate", "depth")) %>%
+  group_by(lakeid, sampledate) %>% 
+  summarize(chla_mean = mean(chlor, na.rm = TRUE),
+            no3no2_mean = mean(no3no2, na.rm = TRUE),
+             nh4_mean = mean(nh4, na.rm = TRUE),
+             doc_mean = mean(doc, na.rm = TRUE),
+             ph_mean = mean(ph, na.rm = TRUE)) %>% 
+  mutate(month = month(sampledate),
+          year = year(sampledate)) %>% 
+  filter(chla_mean > 0)
+```
+
+```{r}
+chla_plot <- ggplot(data = join_chla_lake_chem2, aes(x = sampledate, y = chla_mean),
+                    size = 0.5, alpha = 0.5) +
+  geom_point() +
+  labs(x = "Date",
+       y = "Chlorophyll (Micrograms Per Liter)", 
+       title = "Chlorophyll concentration over time across all sites") +
+  theme_classic() +
+  geom_hline(yintercept = 40, linetype = "dashed", size = 2, color = "red")
+chla_plot
+```
+
+```{r}
+# odds ratio
+chla_OR <- join_chla_lake_chem2 %>% 
+  group_by(lakeid, year, month) %>% 
+  mutate(depth = case_when(
+    lakeid == "CB" ~ 2.5,
+    lakeid == "TB" ~ 7.9,
+    lakeid == "CR" ~ 20.4,
+    lakeid == "BM" ~ 21.3,
+    lakeid == "SP" ~ 20,
+    lakeid == "AL" ~ 8,
+    lakeid == "TR" ~ 35.7
+  )) %>%
+   mutate(depth_type = case_when(
+    lakeid %in% c("CB", "AL", "TB") ~ "shallow",
+    lakeid %in% c("CR", "SP", "TR", "BM") ~ "deep"
+  )) %>% 
+   mutate(bloom = case_when(
+    chla_mean >= 40 ~ TRUE,
+    chla_mean < 40 ~ FALSE
+  ))
+
+
+```
+
+```{r}
+chla_plot <- chla_OR %>% 
+  drop_na(no3no2_mean, bloom) %>% 
+  ggplot(aes(x = depth, y = chla_mean),
+                    size = 0.5, alpha = 0.5) +
+  geom_point() +
+  labs(x = "no3no2_mean",
+       y = "Chlorophyll (Micrograms Per Liter)", 
+       title = "Chlorophyll concentration by depth") +
+  theme_classic()
+chla_plot
+```
+
+```{r}
+chla_OR_mod <- glm(bloom ~ depth, data= chla_OR, family = "binomial")
+chla_OR_mod
+
+# p = probability of blooming
+# log(p/1-p) = -0.22(depth) - 0.38
+# (p / 1-p) = e^(-0.22n* depth - 0.38)
+# (p / 1-p) = e^(-0.22* depth) / e^( 0.38)
+# log odds decreased by 0.22 for every meter of depth
+
+# chla_OR_mod <- glm(bloom ~ depth + nh4_mean + no3no2_mean + doc_mean, data= chla_OR, family = "binomial")
+# chla_OR_mod
+# with(summary(chla_OR_mod), 1 - deviance/null.deviance)
+
+# no3no2
+# chla_OR_mod <- summary(glm(bloom ~ no3no2_mean, data= chla_OR, family = "binomial"))
+# chla_OR_mod
+```
+
+```{r}
+# Compute fitted probabilities
+chla_OR_predict <- chla_OR_mod %>%
+  augment(type.predict = "response") %>%
+  mutate(y_hat = .fitted) %>% 
+  mutate(odds_hat = y_hat / (1 - y_hat))  
+
+chla_OR_plot <- ggplot(chla_OR_predict, 
+                       aes(x = depth, y = odds_hat)) +
+  geom_point() + 
+  geom_line() + 
+  scale_y_continuous("Odds of algal bloom occurence") +
+  labs(title= "Odds of Algal Bloom by Lake Depth",
+       x = "Lake Depth") +
+  theme_classic()
+chla_OR_plot
+```
+
+$$\operatorname{logit}(p)=\log \left(\frac{p}{1-p}\right)=\beta_0+\beta_1  (depth) + \varepsilon $$
