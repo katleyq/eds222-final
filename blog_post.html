@@ -130,7 +130,7 @@ div.csl-indent {
 <section id="background-motivation" class="level2">
 <h2 class="anchored" data-anchor-id="background-motivation">Background &amp; Motivation</h2>
 <p>Algal blooms are defined as the rapid growth of tiny photosynthetic organisms in aquatic environments. Blooms can last for a few days to a few weeks, and sometimes, they can persist for months<span class="citation" data-cites="sellner2003">(<a href="#ref-sellner2003" role="doc-biblioref">Sellner, Doucette, and Kirkpatrick 2003</a>)</span>. Algal blooms can be beneficial for removing carbon dioxide from the atmosphere, but the long-term impact of these blooms can be far more detrimental for aquatic ecosystems<span class="citation" data-cites="grattan2016">(<a href="#ref-grattan2016" role="doc-biblioref">Grattan, Holobaugh, and Morris 2016</a>)</span>. These photosynthetic organisms can release neurotoxins that are harmful for most living organisms, and they can eventually create oxygen dead zones by being a source of nutrients for microbes <span class="citation" data-cites="misra2011">(<a href="#ref-misra2011" role="doc-biblioref">Misra, Chandra, and Raghavendra 2011</a>)</span>.</p>
-<p>This project is motivated by my time living and working in Pennsylvania. In the summer of 2019, I saw my first algal bloom occur in Lake Arrowhead, PA (pictured below). I was curious because it looked like someone had poured paint into the lake. I learned from local residents that these blooms are actually phytoplankton and that they have been seeing these blooms happen more frequently in lakes in the Poconos. In their experience, these blooms last a few days and often times, it will cause dead fish to float to the surface. This made me curious about what factors influence the occurrence of these algal blooms. In this study, I analyze biological, chemical, and physical data of different lakes to see which predictor variables have the most significant influence on the occurrence of algal blooms.</p>
+<p>This project is motivated by my time living and working in Pennsylvania. In the summer of 2019, I saw my first algal bloom occur in Lake Arrowhead, PA (pictured below). I was curious because it looked like someone had poured paint into the lake. I learned from local residents that these blooms are actually phytoplankton and that they have been seeing these blooms happen more frequently in lakes in the Poconos. In their experience, these blooms last a few days and often times, it will cause dead fish to float to the surface. This made me curious about what factors influence the occurrence of these algal blooms.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/IMG_5340-01.JPG" class="img-fluid figure-img" width="462"></p>
@@ -140,7 +140,7 @@ div.csl-indent {
 </section>
 <section id="question" class="level2">
 <h2 class="anchored" data-anchor-id="question">Question</h2>
-<p>For this project, I am interested in predicting algal growth of a lake using available nutrients, water temperature, and light as explanatory variables. In addition, I want to explore whether a change in depth, nutrients, and water temperature increases the odds that an algal bloom occurs within a lake. Finally, I want to assess the long-term trend of chlorophyll concentration in the core study lakes over the past 4 decades.</p>
+<p>For this project, I am interested in the effects of available nutrients, water temperature, and light on predicting algal growth. In addition, I want to explore whether a change in depth, nutrients, and water temperature increases the odds that an algal bloom occurs within a lake. Finally, I want to assess the long-term trend of chlorophyll concentration in the core study lakes over the past 4 decades.</p>
 </section>
 <section id="data-source" class="level2">
 <h2 class="anchored" data-anchor-id="data-source">Data Source</h2>
@@ -335,7 +335,7 @@ div.csl-indent {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="blog_post_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption class="figure-caption">Fig 1: Nutrient, Water Temperature, Light, and Chlorophyll Histograms</figcaption>
+<figcaption class="figure-caption">Nutrient, Water Temperature, Light, and Chlorophyll Histograms</figcaption>
 </figure>
 </div>
 </div>
@@ -362,12 +362,12 @@ div.csl-indent {
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">dv.labels =</span> <span class="fu">c</span>(<span class="st">"log(Chlorophyll)"</span>),</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">string.ci =</span> <span class="st">"Conf. Int (95%)"</span>,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">string.p =</span> <span class="st">"P-value"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Fig 2: Multiple Linear Model Output"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Multiple Linear Model Output"</span>,</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">digits =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Fig 2: Multiple Linear Model Output</caption>
+<caption>Multiple Linear Model Output</caption>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th" style="text-align: center; border-top: double; font-style: normal; font-weight: bold; padding: 0.2cm;">&nbsp;</td>
@@ -431,7 +431,7 @@ div.csl-indent {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="blog_post_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption class="figure-caption">Figure 3: Plotting residuals to assess model performance</figcaption>
+<figcaption class="figure-caption">Plotting residuals to assess model performance</figcaption>
 </figure>
 </div>
 </div>
@@ -446,7 +446,7 @@ div.csl-indent {
 </section>
 <section id="logistic-model" class="level3">
 <h3 class="anchored" data-anchor-id="logistic-model">Logistic Model</h3>
-<p>In this next step of my analysis, I want to look at the odds of an algal bloom occurrence using depth of a lake, ammonium concentration, and water temperature as predictor variables. To this, I transform chlorophyll concentrations to a binary response variable where 1 is the occurrence of a bloom and 0 is the absence of a bloom. Building off prior research, I am using 40 ug/mL as the detection limit for an algal bloom <span class="citation" data-cites="havens1994">(<a href="#ref-havens1994" role="doc-biblioref">Havens 1994</a>)</span>.</p>
+<p>In this next step of my analysis, I want to look at the odds of an algal bloom occurrence using depth of a lake, ammonium concentration, and water temperature as predictor variables. To do this, I transform chlorophyll concentrations to a binary response variable where 1 is the occurrence of a bloom and 0 is the absence of a bloom. Building off prior research, I am using 40 ug/mL as the detection limit for an algal bloom <span class="citation" data-cites="havens1994">(<a href="#ref-havens1994" role="doc-biblioref">Havens 1994</a>)</span>.</p>
 <p><span class="math display">\[\operatorname{logit}(p)=\log \left(\frac{p}{1-p}\right)=\beta_0+\beta_1  (depth) +\beta_2  log(nutrients) + \beta_3  (watertemp) + \varepsilon \]</span></p>
 <div class="cell">
 <details>
@@ -458,12 +458,12 @@ div.csl-indent {
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">dv.labels =</span> <span class="fu">c</span>(<span class="st">"Log odds of Bloom Occurrence"</span>),</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">string.ci =</span> <span class="st">"Conf. Int (95%)"</span>,</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">string.p =</span> <span class="st">"P-value"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Fig 4. Log-odds of Algal Bloom Presence"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Log-odds of Algal Bloom Presence"</span>,</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">digits =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Fig 4. Log-odds of Algal Bloom Presence</caption>
+<caption>Log-odds of Algal Bloom Presence</caption>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th" style="text-align: center; border-top: double; font-style: normal; font-weight: bold; padding: 0.2cm;">&nbsp;</td>
@@ -547,7 +547,7 @@ div.csl-indent {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="blog_post_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption class="figure-caption">Figure 5. Odd Ratio of Bloom Occurrence by Depth</figcaption>
+<figcaption class="figure-caption">Odd Ratio of Bloom Occurrence by Depth</figcaption>
 </figure>
 </div>
 </div>
@@ -590,7 +590,7 @@ div.csl-indent {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="blog_post_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption class="figure-caption">Figure 6. Odds Ratio of Bloom Occurrence by Ammonium and Water Temperature Data</figcaption>
+<figcaption class="figure-caption">Odds Ratio of Bloom Occurrence by Ammonium and Water Temperature Data</figcaption>
 </figure>
 </div>
 </div>
@@ -615,7 +615,7 @@ div.csl-indent {
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(depth_cm_df) <span class="sc">%&gt;%</span> </span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>() <span class="sc">%&gt;%</span> </span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="fu">c</span>(<span class="st">"Confusion Matrix for Logistic Model"</span> <span class="ot">=</span> <span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(depth_cm_df), <span class="at">by =</span> <span class="dv">2</span>), <span class="at">background =</span> <span class="st">"lightgrey"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">row_spec</span>(<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(depth_cm_df), <span class="at">by =</span> <span class="dv">2</span>), <span class="at">background =</span> <span class="st">"#D3D3D3"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_footnote</span>(<span class="st">"Model performed at a 92.8% accurracy level"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
@@ -643,13 +643,13 @@ Freq
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left;background-color: lightgrey !important;">
+<td style="text-align:left;background-color: #D3D3D3 !important;">
 FALSE
 </td>
-<td style="text-align:left;background-color: lightgrey !important;">
+<td style="text-align:left;background-color: #D3D3D3 !important;">
 FALSE
 </td>
-<td style="text-align:right;background-color: lightgrey !important;">
+<td style="text-align:right;background-color: #D3D3D3 !important;">
 2598
 </td>
 </tr>
@@ -665,13 +665,13 @@ FALSE
 </td>
 </tr>
 <tr>
-<td style="text-align:left;background-color: lightgrey !important;">
+<td style="text-align:left;background-color: #D3D3D3 !important;">
 FALSE
 </td>
-<td style="text-align:left;background-color: lightgrey !important;">
+<td style="text-align:left;background-color: #D3D3D3 !important;">
 TRUE
 </td>
-<td style="text-align:right;background-color: lightgrey !important;">
+<td style="text-align:right;background-color: #D3D3D3 !important;">
 180
 </td>
 </tr>
@@ -696,7 +696,7 @@ TRUE
 </tfoot>
 
 </table>
-<p>Figure 7. Confusion Matrix to Assess Logistic Model Performance</p>
+<p>Table 4: Confusion Matrix to Assess Logistic Model Performance</p>
 </div>
 </div>
 </section>
@@ -725,7 +725,7 @@ TRUE
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="blog_post_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption class="figure-caption">Figure 8. Classical Decomposition of Chlorophyll Concentrations over past 4 decades</figcaption>
+<figcaption class="figure-caption">Classical Decomposition of Chlorophyll Concentrations over past 4 decades</figcaption>
 </figure>
 </div>
 </div>
@@ -734,12 +734,12 @@ TRUE
 </section>
 <section id="discussion" class="level1">
 <h1>Discussion</h1>
-<p>Based on the results of my multiple regression model, normalized ammmonium concentration, water temperature, and light conditions can explain 23% of the variance in normalized chlorophyll concentrations in this dataset. One percentage point change in ammonium concentration results in a 0.21 change in normalized chorophyll concentration, holding all other variables constant.. Likewise, for every one degree Celsius change in water temperature, the normalized concentration of chlorophyll increases by 0.1 when all other variables are constant. Finally, for every one percentage point change in available light, the normalized chlorophyll concentration increases by 0.1 when all other variables are constant. When the residuals were plotted against the fitted values, there was an even spread of points across the plane, meaning this model met the assumptions of a linear model. Overall, this model can be improved by looking at other factors like wind and visibility to explain more of the variance in chlorophyll.</p>
-<p>Based on the results of my logit model, a one meter increase in depth decreased the log odds by 18 percentage points. One percentage point change in ammonium concentration results in an increase in the log odds of algal bloom occurrence by a factor of 2.13. In addition, when water temperature increased by one degree Celsius, the log odds of algal bloom occurrence slightly increased by a factor of 1.20. To assess my logit model’s performance, I created a confusion matrix to calculate the amount of true positives, true negatives, false positives, and false negatives. To find the accuracy level, I added the count of true positives and true negatives and divided that by the total observations. The accuracy of my model is 92.8%. The confusion matrix shows that this model is better at predicting true negatives than true positives.</p>
-<p>Based on the results of my decomposition analysis, there has been a slight increase over chlorophyll concentration over time across all sites from 1981-2022. This positive trend is very small though as evidence by the longer grey bar on the left of the trend panel. There is a small seasonal component to chlorophyll concentration across all sites, but most of the variation is explained by random noise in the data as evidenced by the short grey bar in the random panel.</p>
+<p>Based on the results of my multiple regression model (Table 2), normalized ammmonium concentration, water temperature, and light conditions can explain 23% of the variance in normalized chlorophyll concentrations in this dataset. One percentage point change in ammonium concentration results in a 0.21 change in normalized chorophyll concentration, holding all other variables constant (p &lt; 0.001). Likewise, for every one degree Celsius change in water temperature, the normalized concentration of chlorophyll increases by 0.1 when all other variables are constant (p &lt; 0.001). Finally, for every one percentage point change in available light, the normalized chlorophyll concentration increases by 0.1 when all other variables are constant (p &lt; 0.001). When the residuals were plotted against the fitted values, there was an even spread of points across the plane, meaning this model met the assumptions of a linear model. Overall, this model can be improved by looking at other factors like wind, groundwater input, and visibility to explain more of the variance in chlorophyll.</p>
+<p>Based on the results of my logit model (Table 3), a one meter increase in depth decreased the log odds by 18 percentage points (p &lt; 0.001). This means that deeper lakes have less algal blooms. This model also shows that a one percentage point change in ammonium concentration results in an increase in the log odds of algal bloom occurrence by a factor of 2.13 (p &lt; 0.001). In addition, when water temperature increased by one degree Celsius, the log odds of algal bloom occurrence slightly increased by a factor of 1.20 (p &lt; 0.001). To assess my logit model’s performance, I created a confusion matrix to calculate the amount of true positives, true negatives, false positives, and false negatives (Table 4). To find the accuracy level, I added the count of true positives and true negatives and divided that by the total observations. The accuracy of my model is 92.8%. The confusion matrix shows that this model is better at predicting true negatives than true positives.</p>
+<p>Based on the results of my decomposition analysis (Figure 7), there has been a slight increase over chlorophyll concentration over time across all sites from 1981-2022. This positive trend is very small though as evidence by the longer grey bar on the left of the trend panel. There is a small seasonal component to chlorophyll concentration across all sites, but most of the variation is explained by random noise in the data as evidenced by the short grey bar in the random panel.</p>
 <section id="conclusion" class="level3">
 <h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
-<p>Overall, ammonium concentration, water temperature, light, and depth all explain some variation in algal biomass. These explanatory variables can also help predict the presence of absence of a bloom. Additionally, chlorophyll concentration is slightly increasing over time across all lakes. For future work, I would analyze the effect of turbulence, wind and groundwater input to see if these variables can explain more of the variance in algal growth. I would also analyze the data by site to see if some lakes are increasing more in chlorophyll than others.</p>
+<p>Overall, ammonium concentration, water temperature, light, and depth all explain some variation in algal biomass. These explanatory variables can also help predict the presence of absence of a bloom, but the model needs to be improved by including more lakes with different depths. Additionally, chlorophyll concentration is slightly increasing over time across all lakes. For future work, I would analyze the effect of turbulence, wind and groundwater input to see if these variables can explain more of the variance in algal growth. I would also analyze the data by site to see if some lakes are increasing more in chlorophyll than others.</p>
 </section>
 </section>
 <section id="literature-cited" class="level1 unnumbered">
